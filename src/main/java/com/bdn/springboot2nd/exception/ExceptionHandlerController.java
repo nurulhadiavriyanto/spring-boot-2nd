@@ -19,9 +19,14 @@ public class ExceptionHandlerController {
     @ExceptionHandler(value = EntityNotFoundException.class)
     public ResponseEntity<Object> handleEntityNotFound(EntityNotFoundException ex) {
         MessageConstant constant = ex.getMessageConstant();
-        BaseResponse<String> errorDetails =
-                new BaseResponse<>(constant.getHttpStatus(), constant.getField(), constant.getMessage(), null);
-        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+        WrapperMessageResponse error = WrapperMessageResponse.builder()
+                .field(constant.getField())
+                .message(constant.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(
+                        new BaseResponse<>(
+                                String.valueOf(HttpStatus.BAD_REQUEST.value()), "Error", "Request Failed!", error));
     }
 
     @ExceptionHandler(value = ModelAttributeException.class)
